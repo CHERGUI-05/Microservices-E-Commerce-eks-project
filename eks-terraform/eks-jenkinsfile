@@ -9,16 +9,16 @@ pipeline {
         )
     }
 
+    environment {
+        AWS_ACCESS_KEY_ID     = credentials('aws-lab-creds')
+        AWS_SECRET_ACCESS_KEY = credentials('aws-lab-creds')
+        AWS_DEFAULT_REGION    = 'us-east-1'
+    }
+
     stages {
         stage('Checkout from Git') {
             steps {
-                echo 'Checking out Git repository...'
-            }
-        }
-
-        stage('Terraform version') {
-            steps {
-                sh 'terraform --version'
+                checkout scm
             }
         }
 
@@ -26,14 +26,6 @@ pipeline {
             steps {
                 dir('eks-terraform') {
                     sh 'terraform init --reconfigure'
-                }
-            }
-        }
-
-        stage('Terraform validate') {
-            steps {
-                dir('eks-terraform') {
-                    sh 'terraform validate'
                 }
             }
         }

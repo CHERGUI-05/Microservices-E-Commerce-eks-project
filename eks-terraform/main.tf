@@ -35,11 +35,11 @@ data "aws_security_group" "selected" {
 }
 
 # ----------------------------
-# EKS Cluster (uses labrole)
+# EKS Cluster (uses existing IAM Role)
 # ----------------------------
 resource "aws_eks_cluster" "eks" {
   name     = "project-eks"
-  role_arn = "arn:aws:iam::851725605085:role/labrole"   # استعمل labrole
+  role_arn = "arn:aws:iam::851725605085:role/c191399a4934151l13164515t1w851725-LabEksClusterRole-NJFiJXO33QU3"
 
   vpc_config {
     subnet_ids         = [data.aws_subnet.subnet-1.id, data.aws_subnet.subnet-2.id]
@@ -54,12 +54,12 @@ resource "aws_eks_cluster" "eks" {
 }
 
 # ----------------------------
-# EKS Node Group (uses labrole)
+# EKS Node Group (uses existing IAM Role)
 # ----------------------------
 resource "aws_eks_node_group" "node-grp" {
   cluster_name    = aws_eks_cluster.eks.name
   node_group_name = "project-node-group"
-  node_role_arn   = "arn:aws:iam::851725605085:role/labrole"   # استعمل labrole
+  node_role_arn   = "arn:aws:iam::851725605085:role/c191399a4934151l13164515t1w851725605-LabEksNodeRole-5HJfr5YOGesw"
   subnet_ids      = [data.aws_subnet.subnet-1.id, data.aws_subnet.subnet-2.id]
   capacity_type   = "ON_DEMAND"
   disk_size       = 20

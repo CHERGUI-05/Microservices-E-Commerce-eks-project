@@ -3,10 +3,30 @@ provider "aws" {
 }
 
 # ----------------------------
+# Terraform Backend (S3)
+# ----------------------------
+terraform {
+  backend "s3" {
+    bucket = "riheb-eks-terraform-state"   # غيّري الاسم لاسم فريد خاص بك
+    key    = "eks/terraform.tfstate"
+    region = "us-east-1"
+  }
+}
+
+# ----------------------------
+# Variables
+# ----------------------------
+variable "node_group_name" {
+  description = "Name of the EKS node group"
+  type        = string
+  default     = "project-node-group"
+}
+
+# ----------------------------
 # IAM Role for EKS Cluster
 # ----------------------------
 resource "aws_iam_role" "master" {
-  name = "yaswanth-eks-master1"
+  name = "riheb-eks-master"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
@@ -39,7 +59,7 @@ resource "aws_iam_role_policy_attachment" "AmazonEKSVPCResourceController" {
 # IAM Role for Worker Nodes
 # ----------------------------
 resource "aws_iam_role" "worker" {
-  name = "yaswanth-eks-worker1"
+  name = "riheb-eks-worker"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
@@ -54,7 +74,7 @@ resource "aws_iam_role" "worker" {
 }
 
 resource "aws_iam_policy" "autoscaler" {
-  name = "yaswanth-eks-autoscaler-policy1"
+  name = "riheb-eks-autoscaler-policy"
   policy = jsonencode({
     Version = "2012-10-17",
     Statement = [{
@@ -105,7 +125,7 @@ resource "aws_iam_role_policy_attachment" "autoscaler" {
 
 resource "aws_iam_instance_profile" "worker" {
   depends_on = [aws_iam_role.worker]
-  name       = "yaswanth-eks-worker-profile1"
+  name       = "riheb-eks-worker-profile"
   role       = aws_iam_role.worker.name
 }
 
@@ -155,7 +175,7 @@ resource "aws_eks_cluster" "eks" {
   }
 
   tags = {
-    Name        = "yaswanth-eks-cluster"
+    Name        = "riheb-eks-cluster"
     Environment = "dev"
     Terraform   = "true"
   }
@@ -166,7 +186,6 @@ resource "aws_eks_cluster" "eks" {
     aws_iam_role_policy_attachment.AmazonEKSVPCResourceController,
   ]
 }
-
 
 # ----------------------------
 # EKS Node Group

@@ -7,8 +7,8 @@ terraform {
   }
 
   backend "s3" {
-    bucket = "aluruarumullaa1"
-    key    = "ecr/terraform.tfstate"
+    bucket = "riheb-eks-bucket1-416bd6a2"   # ✅ استبدلنا بالـ bucket الذي أنشأته بنفسك
+    key    = "ecr/terraform.tfstate"        # ✅ أبقينا نفس المسار حتى لا يتغير هيكل المشروع
     region = "us-east-1"
   }
 

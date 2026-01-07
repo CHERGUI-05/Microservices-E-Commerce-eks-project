@@ -242,3 +242,4 @@ resource "aws_iam_openid_connect_provider" "eks_oidc" {
   thumbprint_list = [data.tls_certificate.oidc_thumbprint.certificates[0].sha1_fingerprint]
   url             = data.aws_eks_cluster.eks_oidc.identity[0].oidc[0].issuer
 }
+سس

@@ -34,7 +34,7 @@ data "aws_security_group" "selected" {
 # ----------------------------
 resource "aws_eks_cluster" "eks" {
   name     = "project-eks"
-  role_arn = var.cluster_role_arn   # مرر ARN لدور موجود مسبقًا
+  role_arn = var.cluster_role_arn   # استعمل ARN لدور موجود مسبقًا
 
   vpc_config {
     subnet_ids         = [data.aws_subnet.subnet-1.id, data.aws_subnet.subnet-2.id]
@@ -54,7 +54,7 @@ resource "aws_eks_cluster" "eks" {
 resource "aws_eks_node_group" "node-grp" {
   cluster_name    = aws_eks_cluster.eks.name
   node_group_name = var.node_group_name
-  node_role_arn   = var.worker_role_arn   # مرر ARN لدور موجود مسبقًا
+  node_role_arn   = var.worker_role_arn   # استعمل ARN لدور موجود مسبقًا
   subnet_ids      = [data.aws_subnet.subnet-1.id, data.aws_subnet.subnet-2.id]
   capacity_type   = "ON_DEMAND"
   disk_size       = 20

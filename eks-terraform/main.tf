@@ -3,18 +3,13 @@
 # ----------------------------
 resource "aws_iam_role" "eks_cluster_role" {
   name = "AmazonEKSClusterRole"
-
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Principal = {
-          Service = "eks.amazonaws.com"
-        }
-        Action = "sts:AssumeRole"
-      }
-    ]
+    Statement = [{
+      Effect = "Allow"
+      Principal = { Service = "eks.amazonaws.com" }
+      Action    = "sts:AssumeRole"
+    }]
   })
 }
 
@@ -33,18 +28,13 @@ resource "aws_iam_role_policy_attachment" "eks_service_policy" {
 # ----------------------------
 resource "aws_iam_role" "eks_node_role" {
   name = "AmazonEKSNodeRole"
-
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Principal = {
-          Service = "ec2.amazonaws.com"
-        }
-        Action = "sts:AssumeRole"
-      }
-    ]
+    Statement = [{
+      Effect = "Allow"
+      Principal = { Service = "ec2.amazonaws.com" }
+      Action    = "sts:AssumeRole"
+    }]
   })
 }
 
@@ -64,17 +54,37 @@ resource "aws_iam_role_policy_attachment" "ec2_registry_readonly" {
 }
 
 # ----------------------------
-# EKS Cluster (uses IAM Role above)
+# VPC and Subnet Data Sources
+# ----------------------------
+data "aws_vpc" "main" {
+  tags = { Name = "Jumphost-vpc" }
+}
+
+data "aws_subnet" "subnet-1" {
+  vpc_id = data.aws_vpc.main.id
+  filter { name = "tag:Name" values = ["Public-Subnet-1"] }
+}
+
+data "aws_subnet" "subnet-2" {
+  vpc_id = data.aws_vpc.main.id
+  filter { name = "tag:Name" values = ["Public-subnet2"] }
+}
+
+data "aws_security_group" "selected" {
+  vpc_id = data.aws_vpc.main.id
+  filter { name = "tag:Name" values = ["Jumphost-sg"] }
+}
+
+# ----------------------------
+# EKS Cluster
 # ----------------------------
 resource "aws_eks_cluster" "eks" {
   name     = "project-eks"
   role_arn = aws_iam_role.eks_cluster_role.arn
-
   vpc_config {
     subnet_ids         = [data.aws_subnet.subnet-1.id, data.aws_subnet.subnet-2.id]
     security_group_ids = [data.aws_security_group.selected.id]
   }
-
   tags = {
     Name        = "riheb-eks-cluster"
     Environment = "dev"
@@ -83,7 +93,7 @@ resource "aws_eks_cluster" "eks" {
 }
 
 # ----------------------------
-# EKS Node Group (uses IAM Role above)
+# EKS Node Group
 # ----------------------------
 resource "aws_eks_node_group" "node-grp" {
   cluster_name    = aws_eks_cluster.eks.name
@@ -93,110 +103,14 @@ resource "aws_eks_node_group" "node-grp" {
   capacity_type   = "ON_DEMAND"
   disk_size       = 20
   instance_types  = ["t2.micro"]
-
-  labels = {
-    env = "dev"
-  }
-
-  tags = {
-    Name = "project-eks-node-group"
-  }
-
-  scaling_config {
-    desired_size = 3
-    max_size     = 10
-    min_size     = 2
-  }
-
-  update_config {
-    max_unavailable = 1
-  }
-}
-# ----------------------------
-# VPC and Subnet Data Sources
-# ----------------------------
-data "aws_vpc" "main" {
-  tags = {
-    Name = "Jumphost-vpc"
-  }
-}
-
-data "aws_subnet" "subnet-1" {
-  vpc_id = data.aws_vpc.main.id
-  filter {
-    name   = "tag:Name"
-    values = ["Public-Subnet-1"]
-  }
-}
-
-data "aws_subnet" "subnet-2" {
-  vpc_id = data.aws_vpc.main.id
-  filter {
-    name   = "tag:Name"
-    values = ["Public-subnet2"]
-  }
-}
-
-data "aws_security_group" "selected" {
-  vpc_id = data.aws_vpc.main.id
-  filter {
-    name   = "tag:Name"
-    values = ["Jumphost-sg"]
-  }
+  labels = { env = "dev" }
+  tags   = { Name = "project-eks-node-group" }
+  scaling_config { desired_size = 3 max_size = 10 min_size = 2 }
+  update_config { max_unavailable = 1 }
 }
 
 # ----------------------------
-# EKS Cluster (uses existing IAM Role)
-# ----------------------------
-resource "aws_eks_cluster" "eks" {
-  name     = "project-eks"
-  role_arn = var.cluster_role_arn   # نستخدم الـ ARN للـ role الموجود مسبقًا
-
-  vpc_config {
-    subnet_ids         = [data.aws_subnet.subnet-1.id, data.aws_subnet.subnet-2.id]
-    security_group_ids = [data.aws_security_group.selected.id]
-  }
-
-  tags = {
-    Name        = "riheb-eks-cluster"
-    Environment = "dev"
-    Terraform   = "true"
-  }
-}
-
-# ----------------------------
-# EKS Node Group (uses existing IAM Role)
-# ----------------------------
-resource "aws_eks_node_group" "node-grp" {
-  cluster_name    = aws_eks_cluster.eks.name
-  node_group_name = var.node_group_name
-  node_role_arn   = var.worker_role_arn   # نستخدم الـ ARN للـ role الموجود مسبقًا
-  subnet_ids      = [data.aws_subnet.subnet-1.id, data.aws_subnet.subnet-2.id]
-  capacity_type   = "ON_DEMAND"
-  disk_size       = 20
-  instance_types  = ["t2.large"]
-
-  labels = {
-    env = "dev"
-  }
-
-  tags = {
-    Name = "project-eks-node-group"
-  }
-
-  scaling_config {
-    desired_size = 3
-    max_size     = 10
-    min_size     = 2
-  }
-
-  update_config {
-    max_unavailable = 1
-  }
-}
-
-# ----------------------------
-# OIDC Provider for ServiceAccount IAM Roles
+# OIDC Provider
 # ----------------------------
 data "aws_eks_cluster" "eks_oidc" {
   name = aws_eks_cluster.eks.name

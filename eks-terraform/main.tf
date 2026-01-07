@@ -2,11 +2,14 @@
 # VPC and Subnet Data Sources
 # ----------------------------
 data "aws_vpc" "main" {
-  tags = { Name = "Jumphost-vpc" }
+  tags = {
+    Name = "Jumphost-vpc"
+  }
 }
 
 data "aws_subnet" "subnet-1" {
   vpc_id = data.aws_vpc.main.id
+
   filter {
     name   = "tag:Name"
     values = ["Public-Subnet-1"]
@@ -15,6 +18,7 @@ data "aws_subnet" "subnet-1" {
 
 data "aws_subnet" "subnet-2" {
   vpc_id = data.aws_vpc.main.id
+
   filter {
     name   = "tag:Name"
     values = ["Public-subnet2"]
@@ -23,6 +27,7 @@ data "aws_subnet" "subnet-2" {
 
 data "aws_security_group" "selected" {
   vpc_id = data.aws_vpc.main.id
+
   filter {
     name   = "tag:Name"
     values = ["Jumphost-sg"]
@@ -30,11 +35,11 @@ data "aws_security_group" "selected" {
 }
 
 # ----------------------------
-# EKS Cluster (uses existing IAM Role)
+# EKS Cluster (uses labrole)
 # ----------------------------
 resource "aws_eks_cluster" "eks" {
   name     = "project-eks"
-  role_arn = var.cluster_role_arn   # استعمل ARN لدور موجود مسبقًا
+  role_arn = "arn:aws:iam::851725605085:role/labrole"   # استعمل labrole
 
   vpc_config {
     subnet_ids         = [data.aws_subnet.subnet-1.id, data.aws_subnet.subnet-2.id]
@@ -49,19 +54,24 @@ resource "aws_eks_cluster" "eks" {
 }
 
 # ----------------------------
-# EKS Node Group (uses existing IAM Role)
+# EKS Node Group (uses labrole)
 # ----------------------------
 resource "aws_eks_node_group" "node-grp" {
   cluster_name    = aws_eks_cluster.eks.name
-  node_group_name = var.node_group_name
-  node_role_arn   = var.worker_role_arn   # استعمل ARN لدور موجود مسبقًا
+  node_group_name = "project-node-group"
+  node_role_arn   = "arn:aws:iam::851725605085:role/labrole"   # استعمل labrole
   subnet_ids      = [data.aws_subnet.subnet-1.id, data.aws_subnet.subnet-2.id]
   capacity_type   = "ON_DEMAND"
   disk_size       = 20
   instance_types  = ["t2.micro"]
 
-  labels = { env = "dev" }
-  tags   = { Name = "project-eks-node-group" }
+  labels = {
+    env = "dev"
+  }
+
+  tags = {
+    Name = "project-eks-node-group"
+  }
 
   scaling_config {
     desired_size = 3

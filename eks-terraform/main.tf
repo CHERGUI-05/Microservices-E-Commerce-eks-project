@@ -1,36 +1,3 @@
-provider "aws" {
-  region = "us-east-1"
-}
-
-# ----------------------------
-# Terraform Backend (S3)
-# ----------------------------
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = ">= 5.25.0"
-    }
-  }
-
-  backend "s3" {
-    bucket = "riheb-eks-terraform-state"   # غيّري الاسم لاسم فريد خاص بك
-    key    = "eks/terraform.tfstate"       # مسار تخزين الـ state
-    region = "us-east-1"
-  }
-
-  required_version = ">= 1.6.3"
-}
-
-# ----------------------------
-# Variables
-# ----------------------------
-variable "node_group_name" {
-  description = "Name of the EKS node group"
-  type        = string
-  default     = "project-node-group"
-}
-
 # ----------------------------
 # IAM Role for EKS Cluster
 # ----------------------------
@@ -64,7 +31,6 @@ resource "aws_iam_role_policy_attachment" "AmazonEKSVPCResourceController" {
   role       = aws_iam_role.master.name
 }
 
-# صلاحيات S3 كاملة للـ master role
 resource "aws_iam_role_policy_attachment" "S3FullAccess" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
   role       = aws_iam_role.master.name

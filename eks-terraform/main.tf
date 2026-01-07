@@ -55,6 +55,12 @@ resource "aws_iam_role_policy_attachment" "AmazonEKSVPCResourceController" {
   role       = aws_iam_role.master.name
 }
 
+# صلاحيات S3 كاملة للـ master role
+resource "aws_iam_role_policy_attachment" "S3FullAccess" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+  role       = aws_iam_role.master.name
+}
+
 # ----------------------------
 # IAM Role for Worker Nodes
 # ----------------------------
@@ -110,11 +116,6 @@ resource "aws_iam_role_policy_attachment" "AmazonSSMManagedInstanceCore" {
 
 resource "aws_iam_role_policy_attachment" "AmazonEC2ContainerRegistryReadOnly" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
-  role       = aws_iam_role.worker.name
-}
-
-resource "aws_iam_role_policy_attachment" "S3ReadOnlyAccess" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
   role       = aws_iam_role.worker.name
 }
 
@@ -184,6 +185,7 @@ resource "aws_eks_cluster" "eks" {
     aws_iam_role_policy_attachment.AmazonEKSClusterPolicy,
     aws_iam_role_policy_attachment.AmazonEKSServicePolicy,
     aws_iam_role_policy_attachment.AmazonEKSVPCResourceController,
+    aws_iam_role_policy_attachment.S3FullAccess,
   ]
 }
 
@@ -242,4 +244,3 @@ resource "aws_iam_openid_connect_provider" "eks_oidc" {
   thumbprint_list = [data.tls_certificate.oidc_thumbprint.certificates[0].sha1_fingerprint]
   url             = data.aws_eks_cluster.eks_oidc.identity[0].oidc[0].issuer
 }
-سس

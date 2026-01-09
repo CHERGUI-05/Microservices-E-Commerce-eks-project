@@ -7,7 +7,7 @@ terraform {
   }
 
   backend "s3" {
-    bucket = "riheb-eks-bucket1-416bd6a2"   # استعملي هذا أو الثاني
+    bucket = "riheb-eks-bucket1-e0640a5f"   # استعملي هذا أو الثاني
     key    = "eks/terraform.tfstate"        # مسار تخزين الـ state داخل الـ bucket
     region = "us-east-1"
   }

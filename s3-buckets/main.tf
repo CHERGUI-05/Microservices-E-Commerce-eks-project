@@ -15,7 +15,7 @@ resource "aws_s3_bucket" "bucket1" {
   bucket = "rihab-eks-bucket1-${random_id.suffix1.hex}"
 
   tags = {
-    Name        = "riheb-eks-bucket1-${random_id.suffix1.hex}"
+    Name        = "rihab-eks-bucket1-${random_id.suffix1.hex}"
     Environment = "dev"
   }
 }
@@ -31,7 +31,7 @@ resource "aws_s3_bucket" "bucket2" {
   bucket = "rihab-eks-bucket2-${random_id.suffix2.hex}"
 
   tags = {
-    Name        = "riheb-eks-bucket2-${random_id.suffix2.hex}"
+    Name        = "rihab-eks-bucket2-${random_id.suffix2.hex}"
     Environment = "dev"
   }
 }

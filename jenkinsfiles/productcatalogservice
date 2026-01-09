@@ -28,13 +28,13 @@ pipeline {
                 script {
                     sh '''
                     # Authenticate Docker to your AWS ECR registry
-                    aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 851725605085.dkr.ecr.us-east-1.amazonaws.com
+                    aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 795033600530.dkr.ecr.us-east-1.amazonaws.com
 
                     # Tag the image with the correct repository URL
-                    docker tag productcatalogservice:latest 851725605085.dkr.ecr.us-east-1.amazonaws.com/productcatalogservice:${BUILD_NUMBER}
+                    docker tag productcatalogservice:latest 795033600530.dkr.ecr.us-east-1.amazonaws.com/productcatalogservice:${BUILD_NUMBER}
 
                     # Push the image to ECR
-                    docker push 851725605085.dkr.ecr.us-east-1.amazonaws.com/productcatalogservice:${BUILD_NUMBER}
+                    docker push 795033600530.dkr.ecr.us-east-1.amazonaws.com/productcatalogservice:${BUILD_NUMBER}
                     '''
                 }
             }
@@ -45,7 +45,7 @@ pipeline {
                 GIT_EMAIL     = "riheb.chergui@univ-constantine2.dz"
                 GIT_USER_NAME = "CHERGUI-05"
                 IMAGE_NAME    = "productcatalogservice"
-                REPO_URL      = "851725605085.dkr.ecr.us-east-1.amazonaws.com/productcatalogservice"
+                REPO_URL      = "795033600530.dkr.ecr.us-east-1.amazonaws.com/productcatalogservice"
                 YAML_FILE     = "productcatalogservice.yaml"
             }
             steps {

@@ -8,7 +8,7 @@ terraform {
 
   # Backend لتخزين حالة Terraform في S3
   backend "s3" {
-    bucket = "riheb-eks-bucket1-416bd6a2"   # ← غيّرنا الاسم ليطابق الـ bucket الجديد
+    bucket = "riheb-eks-bucket1-e0640a5f"   # ← غيّرنا الاسم ليطابق الـ bucket الجديد
     key    = "ec2/terraform.tfstate"
     region = "us-east-1"
   }
